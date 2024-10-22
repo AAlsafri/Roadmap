@@ -25,10 +25,10 @@ class ProjectViewSet(viewsets.ViewSet):
         """Handle POST requests to create a new project"""
         serializer = ProjectSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(owner=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        
     def update(self, request, pk=None):
         """Handle PUT requests to fully update a project"""
         try:
