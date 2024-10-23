@@ -3,6 +3,7 @@ from django.urls import include, path
 from rest_framework import routers
 from roadmapapi.views.users import UserViewSet
 from roadmapapi.views.projects import ProjectViewSet
+from roadmapapi.views.assignments import AssignmentViewSet
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'users', UserViewSet, basename='user')
@@ -18,4 +19,7 @@ urlpatterns = [
 
     path('projects/', ProjectViewSet.as_view({'get': 'list', 'post': 'create'})),
     path('projects/<int:pk>/', ProjectViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'})),
+
+    path('assignments/', AssignmentViewSet.as_view({'get': 'list', 'post': 'create'})),
+    path('assignments/<int:pk>/', AssignmentViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'})),
 ]
