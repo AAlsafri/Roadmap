@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from roadmapapi.models import Project, assignment
 from roadmapapi.models import Assignment
 from roadmapapi.models import Milestone
+from roadmapapi.models import Goal
 
 # *** Users ***
 class UserSerializer(serializers.ModelSerializer):
@@ -29,3 +30,9 @@ class MilestoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Milestone
         fields = ['id', 'name', 'due_date', 'status', 'project']
+
+# *** Goals ***
+class GoalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Goal
+        fields = ['id', 'project', 'name', 'description', 'deadline']
