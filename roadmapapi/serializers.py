@@ -1,9 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from roadmapapi.models import Project, assignment
-from roadmapapi.models import Assignment
-from roadmapapi.models import Milestone
-from roadmapapi.models import Goal
+from roadmapapi.models import Project, Assignment, Milestone, Goal
+
 
 # *** Users ***
 class UserSerializer(serializers.ModelSerializer):

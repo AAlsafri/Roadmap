@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
 class UserViewSetTests(APITestCase):
-    def setUp(self):
+    def setUp(self):        # Test client for user auth/token before del this
         self.user_data = {
             "username": "testuser",
             "first_name": "Test",

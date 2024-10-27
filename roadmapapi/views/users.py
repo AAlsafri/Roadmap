@@ -1,18 +1,10 @@
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import serializers
 from rest_framework.authtoken.models import Token
-
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'password', 'first_name', 'last_name']
-        extra_kwargs = {'password': {'write_only': True}}
+from roadmapapi.serializers import UserSerializer  
 
 
 class UserViewSet(viewsets.ViewSet):
@@ -27,7 +19,8 @@ class UserViewSet(viewsets.ViewSet):
                 username=serializer.validated_data['username'],
                 first_name=serializer.validated_data['first_name'],
                 last_name=serializer.validated_data['last_name'],
-                password=serializer.validated_data['password']
+                password=serializer.validated_data['password'],
+                email=serializer.validated_data['email']
             )
             token, created = Token.objects.get_or_create(user=user)
             return Response({"token": token.key}, status=status.HTTP_201_CREATED)
@@ -68,7 +61,6 @@ class UserViewSet(viewsets.ViewSet):
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Full update
         serializer = UserSerializer(user, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -82,7 +74,6 @@ class UserViewSet(viewsets.ViewSet):
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Only updating provided fields
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
