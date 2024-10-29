@@ -7,13 +7,11 @@ class AssignmentViewSet(viewsets.ViewSet):
     queryset = Assignment.objects.all()
 
     def list(self, request):
-        """List all assignments"""
         assignments = Assignment.objects.all()
         serializer = AssignmentSerializer(assignments, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
-        """Retrieve a specific assignment"""
         try:
             assignment = Assignment.objects.get(pk=pk)
             serializer = AssignmentSerializer(assignment)
@@ -22,7 +20,6 @@ class AssignmentViewSet(viewsets.ViewSet):
             return Response({"error": "Assignment not found"}, status=status.HTTP_404_NOT_FOUND)
 
     def create(self, request):
-        """Create a new assignment"""
         serializer = AssignmentSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -30,7 +27,6 @@ class AssignmentViewSet(viewsets.ViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, pk=None):
-        """Update an existing assignment"""
         try:
             assignment = Assignment.objects.get(pk=pk)
         except Assignment.DoesNotExist:
@@ -43,7 +39,6 @@ class AssignmentViewSet(viewsets.ViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
-        """Delete an assignment"""
         try:
             assignment = Assignment.objects.get(pk=pk)
             assignment.delete()

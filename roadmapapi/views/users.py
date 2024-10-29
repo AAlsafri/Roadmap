@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from roadmapapi.serializers import UserSerializer  
 
-# Standalone function for registration
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def register_user(request):
@@ -23,17 +22,19 @@ def register_user(request):
         return Response({"token": token.key}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# Standalone function for login
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def login_user(request):
     username = request.data.get('username')
     password = request.data.get('password')
 
+    if not username or not password:
+        return Response({'error': 'Username and password are required'}, status=status.HTTP_400_BAD_REQUEST)
+
     user = authenticate(username=username, password=password)
     if user:
         token, _ = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key}, status=status.HTTP_200_OK)
+        return Response({'token': token.key, 'userId': user.id}, status=status.HTTP_200_OK)
     return Response({'error': 'Invalid Credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserViewSet(viewsets.ViewSet):
@@ -41,13 +42,11 @@ class UserViewSet(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]
 
     def list(self, request):
-        """Handle GET requests to list all users"""
         users = User.objects.all()  
         serializer = UserSerializer(users, many=True)  
         return Response(serializer.data) 
 
     def retrieve(self, request, pk=None):
-        """Handle GET requests to retrieve a specific user by their ID"""
         try:
             user = User.objects.get(pk=pk)
             serializer = UserSerializer(user)
@@ -56,7 +55,6 @@ class UserViewSet(viewsets.ViewSet):
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
     
     def update(self, request, pk=None):
-        """Handle PUT requests to fully update a user"""
         try:
             user = User.objects.get(pk=pk)
         except User.DoesNotExist:
@@ -69,7 +67,6 @@ class UserViewSet(viewsets.ViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def partial_update(self, request, pk=None):
-        """Handle PATCH requests for a partial update"""
         try:
             user = User.objects.get(pk=pk)
         except User.DoesNotExist:
@@ -82,7 +79,6 @@ class UserViewSet(viewsets.ViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
-        """Handle DELETE requests to delete a user"""
         try:
             user = User.objects.get(pk=pk)
             user.delete()

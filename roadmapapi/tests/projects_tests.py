@@ -1,24 +1,23 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
-from roadmapapi.models import Project  
+from roadmapapi.models import Project
 
 class ProjectViewSetTests(APITestCase):
     def setUp(self):
-
         self.user = User.objects.create_user(username="projectuser", password="password123")
+        self.other_user = User.objects.create_user(username="assigneduser", password="password123")
         
-
         self.project_data = {
             "name": "Test Project",
             "description": "A test project description",
-            "owner": self.user,  
+            "owner": self.user,
             "deadline": "2024-12-31",
         }
         self.project = Project.objects.create(**self.project_data)
         
         self.client.force_authenticate(user=self.user)
-
+    
     def test_list_projects(self):
         response = self.client.get("/projects", format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -34,7 +33,7 @@ class ProjectViewSetTests(APITestCase):
         updated_data = {
             "name": "Updated Project Name",
             "description": "Updated project description",
-            "owner": self.user.id,  
+            "owner": self.user.id,
             "deadline": "2025-01-01",
         }
         response = self.client.put(f"/projects/{self.project.id}", updated_data, format="json")
@@ -48,3 +47,12 @@ class ProjectViewSetTests(APITestCase):
         response = self.client.delete(f"/projects/{self.project.id}", format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Project.objects.filter(id=self.project.id).exists())
+
+    def test_assign_user_to_project(self):
+        self.project.assigned_users.add(self.other_user)
+        
+        response = self.client.get(f"/projects/{self.project.id}", format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        assigned_user_ids = [user['id'] for user in response.data.get("assigned_users", [])]
+        self.assertIn(self.other_user.id, assigned_user_ids)
