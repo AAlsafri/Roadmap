@@ -12,13 +12,14 @@ from roadmapapi.models import DeveloperProfile
 def register_user(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
-        # Create user with password from validated data
+        # Extract the password from validated data and create the user
+        password = serializer.validated_data.pop('password')
         user = User.objects.create_user(
             username=serializer.validated_data['username'],
             first_name=serializer.validated_data['first_name'],
             last_name=serializer.validated_data['last_name'],
-            password=serializer.validated_data['password'],
-            email=serializer.validated_data['email']
+            email=serializer.validated_data['email'],
+            password=password  # set password here
         )
 
         # Optional: Handle developer profile data if provided
@@ -37,7 +38,7 @@ def register_user(request):
 
     # Return serializer errors if validation fails
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def login_user(request):

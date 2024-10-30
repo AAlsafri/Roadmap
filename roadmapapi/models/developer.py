@@ -6,3 +6,5 @@ class DeveloperProfile(models.Model):
     is_developer = models.BooleanField(default=False)
     job_title = models.CharField(max_length=100, blank=True, null=True)
     years_of_experience = models.IntegerField(blank=True, null=True)
+    skills = models.JSONField(default=list)  
+    available_date = models.DateField(blank=True, null=True)  
