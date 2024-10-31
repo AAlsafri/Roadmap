@@ -1,0 +1,12 @@
+[
+  {
+    "model": "roadmapapi.goal",
+    "pk": 1,
+    "fields": {
+      "project": 1,
+      "name": "Define MVP",
+      "description": "Outline the minimum viable product requirements",
+      "deadline": "2024-11-10"
+    }
+  }
+]

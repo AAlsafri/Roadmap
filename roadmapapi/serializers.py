@@ -64,14 +64,26 @@ class ProjectSerializer(serializers.ModelSerializer):
     assigned_users = UserWithProfileSerializer(many=True, read_only=True)
     milestones = MilestoneSerializer(many=True, read_only=True)
     goals = GoalSerializer(many=True, read_only=True)
+    progress = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
         fields = [
             'id', 'name', 'description', 'owner', 'assigned_users', 
-            'created_at', 'updated_at', 'milestones', 'goals'
+            'created_at', 'updated_at', 'milestones', 'goals', 'progress'
         ]
         read_only_fields = ['created_at', 'updated_at']
+
+    def get_progress(self, obj):
+        total_milestones = obj.milestones.count()
+        completed_milestones = obj.milestones.filter(status="completed").count()
+        
+        if total_milestones == 0:
+            return 0  # No milestones, so progress is 0%
+        
+        # Calculate the percentage of completed milestones
+        progress_percentage = (completed_milestones / total_milestones) * 100
+        return round(progress_percentage)
 
     def create(self, validated_data):
         assigned_user_ids = self.initial_data.get('assigned_users', [])

@@ -1,0 +1,11 @@
+[
+  {
+    "model": "roadmapapi.assignment",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "project": 1,
+      "role": "Developer"
+    }
+  }
+]
