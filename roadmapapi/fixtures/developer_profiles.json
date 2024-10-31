@@ -1,0 +1,14 @@
+[
+  {
+    "model": "roadmapapi.developerprofile",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "is_developer": true,
+      "job_title": "Backend Engineer",
+      "years_of_experience": 5,
+      "skills": "Django, REST API",
+      "available_date": "2024-10-30"
+    }
+  }
+]

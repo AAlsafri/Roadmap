@@ -1,0 +1,12 @@
+[
+  {
+    "model": "roadmapapi.milestone",
+    "pk": 1,
+    "fields": {
+      "project": 1,
+      "name": "Initial Planning",
+      "due_date": "2024-11-15",
+      "status": "open"
+    }
+  }
+]

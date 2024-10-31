@@ -1,27 +1,44 @@
 from rest_framework import status, permissions, viewsets
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from roadmapapi.serializers import UserSerializer  
+from roadmapapi.serializers import UserSerializer 
+from roadmapapi.models import DeveloperProfile 
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def register_user(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
+        # Extract the password from validated data and create the user
+        password = serializer.validated_data.pop('password')
         user = User.objects.create_user(
             username=serializer.validated_data['username'],
             first_name=serializer.validated_data['first_name'],
             last_name=serializer.validated_data['last_name'],
-            password=serializer.validated_data['password'],
-            email=serializer.validated_data['email']
+            email=serializer.validated_data['email'],
+            password=password  # set password here
         )
+
+        # Optional: Handle developer profile data if provided
+        developer_data = request.data.get("developer_profile", None)
+        if developer_data:
+            DeveloperProfile.objects.create(
+                user=user,
+                is_developer=developer_data.get("is_developer", False),
+                job_title=developer_data.get("job_title", ""),
+                years_of_experience=developer_data.get("years_of_experience", 0)
+            )
+
+        # Create and return the token for the new user
         token, created = Token.objects.get_or_create(user=user)
         return Response({"token": token.key}, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    # Return serializer errors if validation fails
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def login_user(request):
@@ -41,10 +58,18 @@ class UserViewSet(viewsets.ViewSet):
     queryset = User.objects.all()
     permission_classes = [permissions.AllowAny]
 
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def me(self, request):
+        """
+        Retrieve the profile of the currently authenticated user.
+        """
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
     def list(self, request):
-        users = User.objects.all()  
-        serializer = UserSerializer(users, many=True)  
-        return Response(serializer.data) 
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
         try:
@@ -53,7 +78,7 @@ class UserViewSet(viewsets.ViewSet):
             return Response(serializer.data)
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-    
+
     def update(self, request, pk=None):
         try:
             user = User.objects.get(pk=pk)
